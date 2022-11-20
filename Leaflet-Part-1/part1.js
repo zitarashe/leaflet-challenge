@@ -18,7 +18,7 @@ function createFeatures(earthquakeData) {
             "#644d8e"
   }
 
-  function createCircleMarker(feature, latLng) {
+  function createCircleMarker(feature, latlng) {
     var markerOptions = {
         radius: (8 * feature.properties.mag),
         fillColor: getColour(feature.geometry.coordinates[2]),
