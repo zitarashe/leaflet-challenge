@@ -1,13 +1,14 @@
 // Store our API endpoint as queryUrl.
-let queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
+let queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson";
 
 // Perform a GET request to the query URL/
 d3.json(queryUrl).then(function (data) {
-  // Once we get a response, send the data.features object to the createFeatures function.
-  createFeatures(data.features);
+  console.log(data);
+  // Once we get a response, load tectonic plates data before sending it and the data.features earthquakes object to the createFeatures function.
+  loadTectonicPlatesData(data.features);
 });
 
-function createFeatures(earthquakeData) {
+function createFeatures(earthquakeData, tectonicplatesData) {
 
   function getColour(depth) {
     return depth < 10 ? "#ffcc99" :
@@ -43,11 +44,17 @@ function createFeatures(earthquakeData) {
     onEachFeature: onEachFeature
   });
 
-  // Send our earthquakes layer to the createMap function/
-  createMap(earthquakes);
+  let tectonicplates = L.geoJSON(tectonicplatesData, {
+      onEachFeature: function (feature, layer) {
+        layer.setStyle({color: '#feff05', weight: 1})
+      }
+  })
+
+  // Send our earthquakes and tectonicplates layers to the createMap function/
+  createMap(earthquakes, tectonicplates);
 }
 
-function createMap(earthquakes) {
+function createMap(earthquakes, tectonicplates) {
 
   // Create the base layers.
   let street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -66,16 +73,17 @@ function createMap(earthquakes) {
 
   // Create an overlay object to hold our overlay.
   let overlayMaps = {
-    Earthquakes: earthquakes
+    Earthquakes: earthquakes,
+    "Tectonic plates": tectonicplates
   };
 
   // Create our map, giving it the streetmap and earthquakes layers to display on load.
   let myMap = L.map("map", {
     center: [
-      37.09, -95.71
+      0, 79
     ],
-    zoom: 5,
-    layers: [street, earthquakes]
+    zoom: 3,
+    layers: [street, earthquakes, tectonicplates]
   });
 
   // Create a layer control.
